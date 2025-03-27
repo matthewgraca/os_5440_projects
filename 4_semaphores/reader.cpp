@@ -7,11 +7,14 @@
 #include <errno.h>
 #include <cstring>
 #include <unistd.h>
+#include <sys/shm.h>
 
 using namespace std;
 
 #define WRITE_KEY (1492)
 #define READ_KEY (2941)
+#define SHM_KEY (1234)
+#define SHM_BUF_SIZE (1024)
 
 // exits if semaphore cannot be found
 void validate_semget(int sem_id, string msg){
@@ -37,6 +40,40 @@ void validate_semop(int semop_retval, string msg){
   }
 }
 
+void validate_shmdt(int shm_retval){
+  if (shm_retval == 0){
+    cout << "Successfully detached from shared memory space." << endl;
+  }
+  else{
+    char *err_msg = strerror(errno);
+    cout  << "Error with detaching from shared memory: " << err_msg 
+          << ", exiting." << endl;
+    exit(0);
+  }
+}
+
+void validate_shmat(char *shm){
+  if (shm != (char *)-1){
+    cout << "Successfully attached to shared memory space." << endl;
+  }
+  else{
+    char *err_msg = strerror(errno);
+    cout  << "Error with attaching to shared memory: " << err_msg 
+          << ", exiting." << endl;
+    exit(0);
+  }
+}
+
+void validate_shmget(int shm_retval){
+  if (shm_retval != -1){
+    cout << "Successfully found shared memory space." << endl;
+  }
+  else{
+    char *err_msg = strerror(errno);
+    cout  << "Error with shared memory: " << err_msg << ", exiting." << endl;
+    exit(0);
+  }
+}
 int main(){
   // connect to r/w semaphores
   int write_sem_id = semget(WRITE_KEY, 0, 0666);
@@ -60,17 +97,28 @@ int main(){
   cout << "Preparing to read from the shared memory space..." << endl;
   sops[0] = {.sem_num = 0, .sem_op = 1, .sem_flg = 0};
   semop_retval = semop(read_sem_id, sops, 1);
-  validate_semop(semop_retval, "Reader semaphore incremented.");
+  validate_semop(semop_retval, "Successfully incremented reader semaphore.");
   cout << endl;
 
+  // attach to shared mem space
+  int shm_id = shmget(SHM_KEY, SHM_BUF_SIZE, 0666);
+  validate_shmget(shm_id);
+  char *shm = (char *)shmat(shm_id, NULL, 0);
+  validate_shmat(shm);
+
   // read
-  cout << "READING WOOO" << endl;
+  cout << "\nData read: " << shm << "\n\n";
   sleep(5);
 
-  // once reader has finished, clean up
+  // clean up
   cout << "Data read, cleaning up..." << endl;
+  // detach from space 
+  int shmdt_retval = shmdt((char *)shm);
+  validate_shmdt(shmdt_retval);
+
+  // notify semaphore
   sops[0] = {.sem_num = 0, .sem_op = -1, .sem_flg = 0};
   semop_retval = semop(read_sem_id, sops, 1);
-  validate_semop(semop_retval, "Reader semaphore decremented.");
+  validate_semop(semop_retval, "Successfully decremented reader semaphore.");
   cout << "Reader exiting." << endl;
 }

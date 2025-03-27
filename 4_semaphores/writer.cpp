@@ -8,11 +8,14 @@
 #include <errno.h>
 #include <cstring>
 #include <unistd.h>
+#include <sys/shm.h>
 
 using namespace std;
 
 #define WRITE_KEY (1492)
 #define READ_KEY (2941)
+#define SHM_KEY (1234)
+#define SHM_BUF_SIZE (1024)
 
 // exits if semaphore cannot be found
 void validate_semget(int sem_id, string msg){
@@ -34,7 +37,44 @@ void validate_semop(int semop_retval, string msg){
   }
   else{
     char *err_msg = strerror(errno);
-    cout << "Semaphore operation was unsuccessful: " << err_msg << endl;
+    cout  << "Semaphore operation was unsuccessful: " << err_msg 
+          << ", exiting." << endl;
+    exit(0);
+  }
+}
+
+void validate_shmdt(int shm_retval){
+  if (shm_retval == 0){
+    cout << "Successfully detached from shared memory space." << endl;
+  }
+  else{
+    char *err_msg = strerror(errno);
+    cout  << "Error with detaching from shared memory: " << err_msg 
+          << ", exiting." << endl;
+    exit(0);
+  }
+}
+
+void validate_shmat(char *shm){
+  if (shm != (char *)-1){
+    cout << "Successfully attached to shared memory space." << endl;
+  }
+  else{
+    char *err_msg = strerror(errno);
+    cout  << "Error with attaching to shared memory: " << err_msg 
+          << ", exiting." << endl;
+    exit(0);
+  }
+}
+
+void validate_shmget(int shm_retval){
+  if (shm_retval != -1){
+    cout << "Successfully found shared memory space." << endl;
+  }
+  else{
+    char *err_msg = strerror(errno);
+    cout  << "Error with shared memory: " << err_msg << ", exiting." << endl;
+    exit(0);
   }
 }
 
@@ -69,17 +109,31 @@ int main(){
   cout << "Preparing to write into the shared memory space..." << endl;
   sops[0] = {.sem_num = 0, .sem_op = 1, .sem_flg = 0};
   semop_retval = semop(write_sem_id, sops, 1);
-  validate_semop(semop_retval, "Writer semaphore incremented.");
+  validate_semop(semop_retval, "Successfully incremented writer semaphore.");
   cout << endl;
 
+  // attach to shared mem space
+  int shm_id = shmget(SHM_KEY, SHM_BUF_SIZE, 0666);
+  validate_shmget(shm_id);
+  char *shm = (char *)shmat(shm_id, NULL, 0);
+  validate_shmat(shm);
+
   // write
-  cout << "WRITING WOOO" << endl;
+  string msg = "The quick brown fox jumped over the lazy dog";
+  strncpy(shm, msg.c_str(), SHM_BUF_SIZE - 1);
+  shm[SHM_BUF_SIZE - 1] = '\0';
+  cout << "\nData written: " << shm << "\n\n";
   sleep(5);
 
   // clean up
   cout << "Data written, cleaning up..." << endl;
+  // detach from space 
+  int shmdt_retval = shmdt((char *)shm);
+  validate_shmdt(shmdt_retval);
+
+  // notify semaphore
   sops[0] = {.sem_num = 0, .sem_op = -1, .sem_flg = 0};
   semop_retval = semop(write_sem_id, sops, 1);
-  validate_semop(semop_retval, "Writer semaphore decremented.");
+  validate_semop(semop_retval, "Successfully decremented writer semaphore.");
   cout << "Writer exiting." << endl;
 }
