@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <cstring>
+#include <unistd.h>
 
 using namespace std;
 
@@ -73,6 +74,7 @@ int main(){
 
   // write
   cout << "WRITING WOOO" << endl;
+  sleep(5);
 
   // clean up
   cout << "Data written, cleaning up..." << endl;

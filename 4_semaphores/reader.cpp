@@ -6,6 +6,7 @@
 #include <sys/sem.h>
 #include <errno.h>
 #include <cstring>
+#include <unistd.h>
 
 using namespace std;
 
@@ -64,6 +65,7 @@ int main(){
 
   // read
   cout << "READING WOOO" << endl;
+  sleep(5);
 
   // once reader has finished, clean up
   cout << "Data read, cleaning up..." << endl;
