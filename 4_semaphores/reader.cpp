@@ -46,7 +46,6 @@ int main(){
 
   // read
   cout << "\nData read: " << shm << "\n\n";
-  sleep(5);
 
   // clean up
   cout << "Data read, cleaning up..." << endl;

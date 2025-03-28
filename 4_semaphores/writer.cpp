@@ -54,11 +54,12 @@ int main(){
   validate_shmat(shm);
 
   // write
-  string msg = "The quick brown fox jumped over the lazy dog";
+  cout << "Enter text: ";
+  string msg;
+  getline(cin, msg);
   strncpy(shm, msg.c_str(), SHM_BUF_SIZE - 1);
   shm[SHM_BUF_SIZE - 1] = '\0';
   cout << "\nData written: " << shm << "\n\n";
-  sleep(5);
 
   // clean up
   cout << "Data written, cleaning up..." << endl;

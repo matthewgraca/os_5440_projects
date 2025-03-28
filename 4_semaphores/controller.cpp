@@ -11,8 +11,6 @@
 
 using namespace std;
 
-
-
 int main(){
   union semun{
     int val;
