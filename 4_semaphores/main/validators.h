@@ -1,5 +1,5 @@
-#ifndef READWRITEHELPERS_H 
-#define READWRITEHELPERS_H 
+#ifndef VALIDATORS_H 
+#define VALIDATORS_H 
 
 #include <string>
 using namespace std;
@@ -9,9 +9,9 @@ using namespace std;
 #define SHM_KEY (1234)
 #define SHM_BUF_SIZE (1024)
 
-void validate_semget(int sem_id, string msg);
-void validate_semctl(int semctl_retval, string msg);
-void validate_semop(int semop_retval, string msg);
+void validate_semget(int sem_id);
+void validate_semctl(int semctl_retval);
+void validate_semop(int semop_retval);
 void validate_shmget(int shm_retval);
 void validate_shmdt(int shm_retval);
 void validate_shmat(char *shm);

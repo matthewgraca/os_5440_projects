@@ -1,4 +1,4 @@
 #!/bin/bash
-g++ readwritehelpers.cpp controller.cpp -o controller.out
-g++ readwritehelpers.cpp reader.cpp -o reader.out
-g++ readwritehelpers.cpp writer.cpp -o writer.out
+g++ validators.cpp controller.cpp -o controller.out
+g++ validators.cpp reader.cpp -o reader.out
+g++ validators.cpp writer.cpp -o writer.out
