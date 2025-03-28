@@ -8,72 +8,10 @@
 #include <cstring>
 #include <unistd.h>
 #include <sys/shm.h>
+#include "readwritehelpers.h"
 
 using namespace std;
 
-#define WRITE_KEY (1492)
-#define READ_KEY (2941)
-#define SHM_KEY (1234)
-#define SHM_BUF_SIZE (1024)
-
-// exits if semaphore cannot be found
-void validate_semget(int sem_id, string msg){
-  if (sem_id < 0){
-    char *err_msg = strerror(errno);
-    cout << "Semaphore not found: " << err_msg << endl;
-    cout << "Exiting... " << endl;
-    exit(0);
-  }
-  else{
-    cout << msg << endl;
-  }
-}
-
-// prints if sem op was successful or not
-void validate_semop(int semop_retval, string msg){
-  if (semop_retval == 0){
-    cout << msg << endl;
-  }
-  else{
-    char *err_msg = strerror(errno);
-    cout << "Semaphore operation was unsuccessful: " << err_msg << endl;
-  }
-}
-
-void validate_shmdt(int shm_retval){
-  if (shm_retval == 0){
-    cout << "Successfully detached from shared memory space." << endl;
-  }
-  else{
-    char *err_msg = strerror(errno);
-    cout  << "Error with detaching from shared memory: " << err_msg 
-          << ", exiting." << endl;
-    exit(0);
-  }
-}
-
-void validate_shmat(char *shm){
-  if (shm != (char *)-1){
-    cout << "Successfully attached to shared memory space." << endl;
-  }
-  else{
-    char *err_msg = strerror(errno);
-    cout  << "Error with attaching to shared memory: " << err_msg 
-          << ", exiting." << endl;
-    exit(0);
-  }
-}
-
-void validate_shmget(int shm_retval){
-  if (shm_retval != -1){
-    cout << "Successfully found shared memory space." << endl;
-  }
-  else{
-    char *err_msg = strerror(errno);
-    cout  << "Error with shared memory: " << err_msg << ", exiting." << endl;
-    exit(0);
-  }
-}
 int main(){
   // connect to r/w semaphores
   int write_sem_id = semget(WRITE_KEY, 0, 0666);
