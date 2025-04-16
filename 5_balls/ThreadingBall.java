@@ -12,6 +12,8 @@ class MyBall extends Thread{
   String str, substr;
   boolean goingDown;
   Semaphore pre_semaphore, post_semaphore;
+  int fallDist;
+  int yPrev;
 
   public MyBall(
       int xx, 
@@ -26,6 +28,7 @@ class MyBall extends Thread{
     str_index = 0;
     substr = "A";
     goingDown = true;
+    fallDist = 50;
     x = xx;
     y = yy;
     sleeptime = sleepTime;
@@ -46,12 +49,13 @@ class MyBall extends Thread{
         str_index++;
         if (str_index >= str.length()) str_index = 0;
 
+        yPrev = y;
         if (goingDown){
-          y += 10;
+          y += fallDist;
           if (y > 550) goingDown = false;
         }
         else{
-          y -= 10;
+          y -= fallDist;
           if (y <= 0) goingDown = true;
         }
       } catch (Exception e) {}
@@ -63,8 +67,7 @@ class MyBall extends Thread{
 
   public void draw(Graphics g) {
     g.setColor(Color.white);
-    if (goingDown) g.fillOval(x, y-10, 50, 50);
-    else g.fillOval(x, y+10, 50, 50);
+    g.fillOval(x, yPrev, 50, 50);
     g.setFont(new Font("Rome", Font.BOLD, 50));
     g.drawString(substr, x, y+30);
 
