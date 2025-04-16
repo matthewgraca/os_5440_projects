@@ -41,23 +41,22 @@ class MyBall extends Thread{
   public void run(){
     while (true){
       try{
+        // lock semaphore
         pre_semaphore.acquire();
         Thread.sleep(sleeptime);
 
+        // paint ball
         mBw.repaint();
+
+        // update next string
         substr = str.substring(str_index, str_index+1);
         str_index++;
         if (str_index >= str.length()) str_index = 0;
-
+        // update ball's next y coordinate
         yPrev = y;
-        if (goingDown){
-          y += fallDist;
-          if (y > 550) goingDown = false;
-        }
-        else{
-          y -= fallDist;
-          if (y <= 0) goingDown = true;
-        }
+        y = goingDown ? y + fallDist : y - fallDist;
+        if (y > 550) goingDown = false;
+        if (y <= 0) goingDown = true;
       } catch (Exception e) {}
       finally {
         post_semaphore.release();
