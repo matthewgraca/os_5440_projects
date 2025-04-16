@@ -81,15 +81,20 @@ class MyBallWindow extends JFrame{
   MyBall myBall[];
 
   public MyBallWindow(){
-    Semaphore sem1 = new Semaphore(1);
+    Semaphore sem1 = new Semaphore(2);
     Semaphore sem2 = new Semaphore(0);
     Semaphore sem3 = new Semaphore(0);
+
+    /*
     Semaphore sem4 = new Semaphore(0);
     Semaphore sem5 = new Semaphore(0);
     Semaphore sem6 = new Semaphore(0);
-    int sleepTime = 500;  // any faster, and the balls sometimes drops together
+    */
+
+    int sleepTime = 500;  // any faster, and the balls sometime visually drops together
     myBall = new MyBall[6];
 
+    // original ball order
     /*
     myBall[0] = new MyBall(100, 0, 300, this, Color.red, sem6, sem1);
     myBall[1] = new MyBall(200, 0, 300, this, Color.blue, sem3, sem4);
@@ -99,12 +104,13 @@ class MyBallWindow extends JFrame{
     myBall[5] = new MyBall(600, 0, 300, this, Color.pink, sem1, sem2);
     */
 
+    // project 5 ball order
     myBall[0] = new MyBall(100, 0, sleepTime, this, Color.pink, sem1, sem2);
-    myBall[1] = new MyBall(200, 0, sleepTime, this, Color.green, sem2, sem3);
-    myBall[2] = new MyBall(300, 0, sleepTime, this, Color.blue, sem3, sem4); 
-    myBall[3] = new MyBall(400, 0, sleepTime, this, Color.yellow, sem4, sem5);
-    myBall[4] = new MyBall(500, 0, sleepTime, this, Color.orange, sem5, sem6);
-    myBall[5] = new MyBall(600, 0, sleepTime, this, Color.red, sem6, sem1);
+    myBall[1] = new MyBall(200, 0, sleepTime, this, Color.green, sem1, sem2);
+    myBall[2] = new MyBall(300, 0, sleepTime, this, Color.blue, sem2, sem3); 
+    myBall[3] = new MyBall(400, 0, sleepTime, this, Color.yellow, sem2, sem3);
+    myBall[4] = new MyBall(500, 0, sleepTime, this, Color.orange, sem3, sem1);
+    myBall[5] = new MyBall(600, 0, sleepTime, this, Color.red, sem3, sem1);
 
     for (int i = 0; i < 6; i++){ 
       myBall[i].start();   
