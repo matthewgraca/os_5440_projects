@@ -36,7 +36,8 @@ int main(){
     int msglen = 1;
     while (msglen > 0){
       msglen = recv(sockfd, buf, BUFF_LEN, 0);
-      cout << buf << endl;
+      string msg = (msglen <= 0) ? "Peer has left, exiting..." : "A: " + string(buf);
+      cout << msg << endl;
     }
 
     // close client socket once finished
@@ -61,14 +62,15 @@ int main(){
     socklen_t sin_size = sizeof(struct sockaddr_in);
     newsockfd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
 
+    cout << "Connection accepted from client. You can now send messages. Type \"/q\" to exit." << endl;
+
     // write data
     char inputbuf[BUFF_LEN];
-    while (true){
-      cin >> inputbuf;
-      send(newsockfd, inputbuf, BUFF_LEN, 0); 
+    int retval = 1;
+    while (retval != -1){
+      cin.getline(inputbuf, BUFF_LEN);
+      retval = (string(inputbuf) == "/q") ? -1 : send(newsockfd, inputbuf, BUFF_LEN, 0); 
     }
-
-
 
     // close connection to client socket
     close(newsockfd);
